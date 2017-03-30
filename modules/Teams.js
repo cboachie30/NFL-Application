@@ -9,7 +9,7 @@ export default React.createClass({
   //  mongodb.connect('mongodb://localhost/nflSchedule');
     console.log('mounted');
     request
-    .post('/getTeams')
+    .get('/getTeams')
     .end(function(err, res){
       console.log(res);
     });
