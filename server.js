@@ -62,6 +62,7 @@ app.get('*', (req, res) => {
 				const appHtml = renderToString(<RouterContext {...props}/>)
 				res.send(renderPage(appHtml))
       //  res.send('page' + req.url);
+      //  res.send('page' + req.url);
 			} else {
 				// no errors, no redirect, we just didn't match anything
 				res.status(404).send('Not Found')

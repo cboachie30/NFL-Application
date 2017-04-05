@@ -122,6 +122,7 @@
 	      var appHtml = (0, _server.renderToString)(_react2.default.createElement(_reactRouter.RouterContext, props));
 	      res.send(renderPage(appHtml));
 	      //  res.send('page' + req.url);
+	      //  res.send('page' + req.url);
 	    } else {
 	      // no errors, no redirect, we just didn't match anything
 	      res.status(404).send('Not Found');
@@ -356,16 +357,43 @@
 	  displayName: 'Teams',
 
 	  contextTypes: {
-	    router: _react2.default.PropTypes.object
+	    router: _react2.default.PropTypes.object,
+	    teamList: _react2.default.PropTypes.array
 	  },
+	  getInitialState: function getInitialState() {
+	    return {
+	      teamList: null
+	    };
+	  },
+	  // setState: function(valsIn) {
+	  //   console.log('setting here', valsIn);
+	  //   if (valsIn) {
+	  //     this.setState({
+	  //       teamList: valsIn
+	  //     })
+	  //   }
+	  // },
+
 	  componentDidMount: function componentDidMount() {
 	    //  mongodb.connect('mongodb://localhost/nflSchedule');
-	    console.log('mounted');
+	    this.getTeams();
+	  },
+	  getTeams: function getTeams() {
+	    var that = this;
+
 	    _superagent2.default.get('/getTeams').end(function (err, res) {
-	      console.log(res);
+	      if (res.body) {
+	        console.log(res.body, that);
+	        that.setState({
+	          teamList: res.body
+	        });
+	      }
 	    });
 	  },
 	  render: function render() {
+	    console.log('rendering', teamList);
+	    var teamList = this.state.teamList;
+
 	    return _react2.default.createElement(
 	      'div',
 	      null,
@@ -374,19 +402,21 @@
 	        null,
 	        'Teams'
 	      ),
-	      _react2.default.createElement(
+	      teamList ? _react2.default.createElement(
 	        'ul',
 	        null,
-	        _react2.default.createElement(
-	          'li',
-	          null,
-	          _react2.default.createElement(
-	            'a',
-	            { href: '/team/123' },
-	            'Team 1'
-	          )
-	        )
-	      )
+	        teamList.map(function (team) {
+	          return _react2.default.createElement(
+	            'li',
+	            null,
+	            _react2.default.createElement(
+	              'a',
+	              { href: '/team/123' },
+	              team
+	            )
+	          );
+	        })
+	      ) : null
 	    );
 	  }
 	});
