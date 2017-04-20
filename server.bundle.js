@@ -103,9 +103,20 @@
 	app.get('/getTeams', function (req, res) {
 	  conMongo(function (db) {
 	    var teams = db.collection('teams');
-	    res.status(200).send(['cowboys', 'broncos']);
+	    teams.find().toArray(function (error, teams) {
+	      res.status(200).send(teams);
+	    });
 	  });
 	});
+	app.get('/getPlayers', function (req, res) {
+	  conMongo(function (db) {
+	    var players = db.collection('players');
+	    players.find({ teamId: req.query.teamId }).toArray(function (error, teams) {
+	      res.status(200).send(teams);
+	    });
+	  });
+	});
+
 	// send all requests to index.html so browserHistory works
 	app.get('*', function (req, res) {
 	  (0, _reactRouter.match)({ routes: _routes2.default, location: req.url }, function (err, redirect, props) {
@@ -236,7 +247,7 @@
 	      _react2.default.createElement(
 	        'h1',
 	        null,
-	        'React Router Tutorial'
+	        'NFL Application'
 	      ),
 	      _react2.default.createElement(
 	        'ul',
@@ -255,7 +266,7 @@
 	          null,
 	          _react2.default.createElement(
 	            _NavLink2.default,
-	            { to: '/about' },
+	            { to: '/About' },
 	            'About'
 	          )
 	        ),
@@ -365,15 +376,6 @@
 	      teamList: null
 	    };
 	  },
-	  // setState: function(valsIn) {
-	  //   console.log('setting here', valsIn);
-	  //   if (valsIn) {
-	  //     this.setState({
-	  //       teamList: valsIn
-	  //     })
-	  //   }
-	  // },
-
 	  componentDidMount: function componentDidMount() {
 	    //  mongodb.connect('mongodb://localhost/nflSchedule');
 	    this.getTeams();
@@ -405,14 +407,14 @@
 	      teamList ? _react2.default.createElement(
 	        'ul',
 	        null,
-	        teamList.map(function (team) {
+	        teamList.map(function (team, index) {
 	          return _react2.default.createElement(
 	            'li',
-	            null,
+	            { key: index },
 	            _react2.default.createElement(
 	              'a',
-	              { href: '/team/123' },
-	              team
+	              { href: '/team/' + team.id },
+	              team.name
 	            )
 	          );
 	        })
@@ -441,13 +443,44 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _superagent = __webpack_require__(10);
+
+	var _superagent2 = _interopRequireDefault(_superagent);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.default = _react2.default.createClass({
 	  displayName: 'team',
+
+	  contextTypes: {
+	    router: _react2.default.PropTypes.object,
+	    playerList: _react2.default.PropTypes.array
+	  },
+	  getInitialState: function getInitialState() {
+	    return {
+	      playerList: null
+	    };
+	  },
+	  componentDidMount: function componentDidMount() {
+	    //  mongodb.connect('mongodb://localhost/nflSchedule');
+	    this.getTeams();
+	  },
+	  getTeams: function getTeams() {
+	    var that = this;
+
+	    _superagent2.default.get('/getPlayers?teamId=' + this.props.params.teamId).end(function (err, res) {
+	      if (res.body) {
+	        console.log(res.body, that);
+	        that.setState({
+	          playerList: res.body
+	        });
+	      }
+	    });
+	  },
 	  render: function render() {
 	    console.log(this.props.params);
 	    var teamId = this.props.params.teamId;
+	    var playerList = this.state.playerList;
 
 	    return _react2.default.createElement(
 	      'div',
@@ -455,9 +488,23 @@
 	      _react2.default.createElement(
 	        'h2',
 	        null,
-	        'This team is ',
-	        teamId
-	      )
+	        'Players'
+	      ),
+	      playerList ? _react2.default.createElement(
+	        'ul',
+	        null,
+	        playerList.map(function (player, index) {
+	          return _react2.default.createElement(
+	            'li',
+	            { key: index },
+	            _react2.default.createElement(
+	              'a',
+	              { href: '/team/' + player.id },
+	              player.name
+	            )
+	          );
+	        })
+	      ) : null
 	    );
 	  }
 	});

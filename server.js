@@ -43,9 +43,23 @@ function conMongo(callback) {
 app.get('/getTeams', (req, res) => {
   conMongo((db) => {
     var teams = db.collection('teams');
-    res.status(200).send(['cowboys', 'broncos']);
+    teams.find().toArray((error, teams)=>{
+    res.status(200).send(teams);
+    })
+
   })
 })
+app.get('/getPlayers', (req, res) => {
+  conMongo((db) => {
+    var players = db.collection('players');
+    players.find({teamId: req.query.teamId}).toArray((error, teams)=>{
+    res.status(200).send(teams);
+    })
+
+  })
+})
+
+
 // send all requests to index.html so browserHistory works
 app.get('*', (req, res) => {
 		match({ routes: routes, location: req.url }, (err, redirect, props) => {

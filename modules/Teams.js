@@ -42,7 +42,7 @@ export default React.createClass({
           <ul>
             {teamList.map((team, index) => {
               return (
-                  <li key={index}><a href="/team/123">{team}</a></li>
+                  <li key={index}><a href={'/team/'+team.id}>{team.name}</a></li>
               );
             })}
 
